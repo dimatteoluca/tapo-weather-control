@@ -11,7 +11,7 @@ logging.basicConfig(filename='./app.log', level=logging.INFO, format='%(asctime)
 load_dotenv("config.env")
 
 # Configuration values
-cloudiness_breakpoint = 40  # percentage
+cloudiness_breakpoint = 33  # percentage
 
 # Tapo's plugs and bulbs configuration
 tapo_email = os.getenv("TAPO_EMAIL")
@@ -38,21 +38,26 @@ latitude =  os.getenv("LATITUDE")
 longitude = os.getenv("LONGITUDE")
 api_key =   os.getenv("OPEN_WEATHER_API_KEY")
 
-# Get weather information
-weather_info = weather_functions.get_weather(latitude, longitude, api_key)
+def start():
+    # Get weather information
+    weather_info = weather_functions.get_weather(latitude, longitude, api_key)
 
-if weather_info:
-    # If the weather it's cloudy turn on the light
-    cloudiness = weather_info["clouds"]["all"]
-    if cloudiness > cloudiness_breakpoint:
-        logging.info(f"Cloudy ({cloudiness}%)")
-        for device_name, device_params in devices.items():
-            tapo_functions.if_off_turn_on(device_params)
+    if weather_info:
+        # If the weather it's cloudy turn on the light
+        cloudiness = weather_info["clouds"]["all"]
+        if cloudiness > cloudiness_breakpoint:
+            logging.info(f"Cloudy ({cloudiness}%)")
+            for device_name, device_params in devices.items():
+                tapo_functions.if_off_turn_on(device_params)
+        else:
+            logging.info(f"Not cloudy ({cloudiness}%)")
+            for device_name, device_params in devices.items():
+                tapo_functions.if_on_turn_off(device_params)
     else:
-        logging.info(f"Not cloudy ({cloudiness}%)")
-        for device_name, device_params in devices.items():
-            tapo_functions.if_on_turn_off(device_params)
-else:
-    logging.error("Unable to retrieve weather data.")
+        logging.error("Unable to retrieve weather data.")
+
+if __name__ == "__main__":
+    start()
     
 logging.info("------------------------------------------")
+
