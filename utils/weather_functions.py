@@ -17,10 +17,10 @@ def get_weather(latitude, longitude, api_key):
         return weather_data
     except requests.exceptions.HTTPError as e:
         logging.error(f"HTTP Error: {e}")
-        return None
+        raise e
     except requests.exceptions.ConnectionError as e:
         logging.error(f"Connection Error: {e}")
-        return None
+        raise e
     except requests.exceptions.RequestException as e:
         logging.error(f"Error: {e}")
-        return None
+        raise e
