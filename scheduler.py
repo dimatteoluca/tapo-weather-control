@@ -1,14 +1,13 @@
 import datetime
-import logging
 import schedule
 import sys
 import time
-from astral.sun import sun          # pip install astral
-from astral import LocationInfo
-from TapoWeatherControl import *
-
-# Logger configuration
-logging.basicConfig(filename='./app.log', level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+from astral.sun import sun  # pip install astral
+from astral.location import LocationInfo
+try:
+    from TapoWeatherControl import *
+except ImportError:         # handle the case when the direct import fails, likely when executing through an external file
+    from .TapoWeatherControl import *
 
 # Configuration values
 first_hour = 9
@@ -31,19 +30,18 @@ def set_sunset_time(latitude, longitude):
         sys.exit(1)  
     except Exception as e:
         logging.error(f"Error occurred while getting sunset time: {str(e)}")
-        # Emit a warning but continue execution using a default sunset time
         logging.warning("Continuing execution with default sunset time.")
         sunset_time = datetime.datetime.now().replace(hour=18, minute=40, second=0)
 
 # Get the range of hours in which the script needs to be executed
 def get_target_range():
     global sunset_time
-    last_hour = sunset_time.hour-1
+    last_hour = sunset_time.hour - 1
     current_hour = datetime.datetime.now().hour
-    if (current_hour > first_hour) and (current_hour < last_hour):
-        target_range = range(current_hour-1, last_hour)
+    if current_hour > first_hour and current_hour < last_hour:
+        target_range = range(current_hour - 1, last_hour)
     else:
-        target_range = range(first_hour-1, last_hour)
+        target_range = range(first_hour - 1, last_hour)
     return target_range
 
 # Schedule for 1 minute before every hour between 9AM and the sunset time
@@ -51,9 +49,10 @@ def schedule_action():
     try:
         target_range = get_target_range()
         for hour in target_range:
-            schedule.every().day.at(f"{hour}:59").do(start)
+            schedule.every().day.at(f"{hour}:59").do(start_control)
     except Exception as e:
         logging.error(f"Error occurred while scheduling action: {str(e)}")
+
 
 def reschedule_action():
     schedule.clear()
@@ -85,25 +84,30 @@ def main_loop():
     global sunset_time
     try:
         set_sunset_time(latitude, longitude)
-        logging.info(f"Today's sunset time is: {sunset_time}")
-        reschedule_action()
-        target_range = get_target_range()
-        current_hour = datetime.datetime.now().hour
+        logging.info(f"Today's sunset time is:  {sunset_time.strftime('%H:%M')}")
         last_hour = sunset_time.hour - 1
-        logging.info(f"Last hour is: {last_hour}")
-        if (current_hour > first_hour) and (current_hour < last_hour):
-            start()
-            logging.info("Waiting for the next hour.")
-            wait_until_next_hour()
-        else:
-            logging.info("Waiting for 9AM.")
-            wait_until([9, 0, 0])  # wait until 9AM
-        for hour in target_range:
+        logging.info(f"So today's last hour is: {last_hour}:00")
+        
+        current_hour = datetime.datetime.now().hour
+        if current_hour < last_hour:
+            reschedule_action()
+            if current_hour >= first_hour:
+                start_control()
+                logging.info("Waiting for the next hour.")
+                wait_until_next_hour()
+            else:
+                logging.info("Waiting for:             09:00.")
+                wait_until([9, 0, 0])  # wait until 9AM
+        
+        current_hour = datetime.datetime.now().hour
+        while current_hour <= last_hour:
             # Check if there are pending scheduled events and execute them
             schedule.run_pending()
-            # Wait 1 hour
             wait_until_next_hour()
-        wait_until([1, 0, 0])      # wait until 1AM
+
+        logging.info("Waiting for:             01:00")
+        wait_until([1, 0, 0])          # wait until 1AM
+
     except KeyboardInterrupt:
         logging.info("Program interrupted by user.")
         sys.exit(0)
