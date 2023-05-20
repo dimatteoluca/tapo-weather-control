@@ -21,7 +21,7 @@ config_file = os.path.join(folder_path, 'config.env')
 load_dotenv(config_file)
 
 # Configuration values
-CLOUDINESS_BREAKPOINT = 33  # percentage
+cloudiness_breakpoint = int(os.getenv("CLOUDINESS_BREAKPOINT"))
 
 # Tapo's plugs and bulbs configuration
 tapo_email = os.getenv("TAPO_EMAIL")
@@ -56,7 +56,7 @@ def start_control():
         # If the weather it's cloudy turn on the light
         cloudiness = weather_info["clouds"]["all"]
         threads = []
-        if cloudiness > CLOUDINESS_BREAKPOINT:
+        if cloudiness > cloudiness_breakpoint:
             logging.info(f"Cloudy ({cloudiness}%)")
             for device_name, device_params in devices.items():
                 try:
