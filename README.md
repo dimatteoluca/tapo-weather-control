@@ -1,10 +1,10 @@
 # Tapo Weather Control
 
-This program is designed to control Tapo devices (plugs and bulbs) based on weather conditions obtained from OpenWeatherMap API. It allows you to automate the behavior of the Tapo devices based on cloudiness data retrieved for a specific location.
+This program is designed to control [Tapo](https://www.tapo.com/) devices (plugs and bulbs) based on weather conditions obtained from [OpenWeatherMap](https://openweathermap.org/) API. It allows you to automate the behavior of the Tapo devices based on cloudiness data retrieved for a specific location.
 
 ## Prerequisites
 
-- Python 3.7 or higher
+- [Python](https://www.python.org/) 3.7 or higher
 - Required Python packages: `PyP100`, `python-dotenv`, `astral`
 
 ## Installation
