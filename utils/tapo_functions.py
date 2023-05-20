@@ -58,7 +58,6 @@ def try_to_setup(params):
     logging.info("Couldn't setup the device. Another attempt will be made later.")
 
 def if_off_turn_on(params):
-    #device = device_setup(params)
     device = try_to_setup(params)
     info = device.getDeviceInfo()
     if info["result"]["device_on"] == False:
@@ -67,7 +66,6 @@ def if_off_turn_on(params):
         logging.info("The device was already on.")
 
 def if_on_turn_off(params):
-    #device = device_setup(params)
     device = try_to_setup(params)
     info = device.getDeviceInfo()
     if info["result"]["device_on"] == True:
