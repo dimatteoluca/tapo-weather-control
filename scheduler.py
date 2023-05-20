@@ -10,7 +10,7 @@ except ImportError:         # handle the case when the direct import fails, like
     from .TapoWeatherControl import *
 
 # Configuration values
-first_hour = 9
+first_hour = int(os.getenv("FIRST_HOUR"))
 
 # Global variables
 sunset_time = None
@@ -83,10 +83,11 @@ def wait_until_next_hour():
 def main_loop():
     global sunset_time
     try:
+        logging.info("First hour is set on:    %s", datetime.datetime.strptime(str(first_hour), "%H").strftime("%H:%M"))
         set_sunset_time(latitude, longitude)
         logging.info(f"Today's sunset time is:  {sunset_time.strftime('%H:%M')}")
         last_hour = sunset_time.hour - 1
-        logging.info(f"So today's last hour is: {last_hour}:00")
+        logging.info("So today's last hour is: %s", datetime.datetime.strptime(str(last_hour), "%H").strftime("%H:%M"))
         
         current_hour = datetime.datetime.now().hour
         if current_hour < last_hour:

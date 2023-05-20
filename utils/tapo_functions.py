@@ -10,7 +10,7 @@ def setup_p100(ip, email, psw):
     device.handshake()
     # Send credentials to the plug and creates AES Key and IV for further methods
     device.login()
-    logging.info(f"Plug {ip}: {device.getDeviceInfo()}")
+    #logging.info(f"Plug info: {ip}, {device.getDeviceInfo()}")
     return device
 
 def setup_l530(ip, email, psw):
@@ -19,7 +19,7 @@ def setup_l530(ip, email, psw):
     device.handshake()
     # Send credentials to the bulb and creates AES Key and IV for further methods
     device.login()
-    logging.info(f"Bulb {ip}: {device.getDeviceInfo()}")
+    #logging.info(f"Bulb info: {ip}, {device.getDeviceInfo()}")
     return device
 
 def device_setup(params):
@@ -63,7 +63,8 @@ def if_off_turn_on(params):
     if info["result"]["device_on"] == False:
         device.turnOn()
     else:
-        logging.info("The device was already on.")
+        ip = params["ip"]
+        logging.info(f"The device {ip} was already on.")
 
 def if_on_turn_off(params):
     device = try_to_setup(params)
@@ -71,4 +72,5 @@ def if_on_turn_off(params):
     if info["result"]["device_on"] == True:
         device.turnOff()
     else:
-        logging.info("The device was already off.")
+        ip = params["ip"]
+        logging.info(f"The device {ip} was already off.")

@@ -1,0 +1,9 @@
+# Exclude config.env file
+config.env
+
+# Exclude log file
+app.log
+
+# Exclude pycache folders
+__pycache__/
+utils/__pycache__/
