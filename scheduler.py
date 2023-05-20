@@ -38,7 +38,7 @@ def get_target_range():
     global sunset_time
     last_hour = sunset_time.hour - 1
     current_hour = datetime.datetime.now().hour
-    if current_hour > first_hour and current_hour < last_hour:
+    if current_hour > first_hour and current_hour <= last_hour:
         target_range = range(current_hour - 1, last_hour)
     else:
         target_range = range(first_hour - 1, last_hour)
@@ -90,7 +90,7 @@ def main_loop():
         logging.info("So today's last hour is: %s", datetime.datetime.strptime(str(last_hour), "%H").strftime("%H:%M"))
         
         current_hour = datetime.datetime.now().hour
-        if current_hour < last_hour:
+        if current_hour <= last_hour:
             reschedule_action()
             if current_hour >= first_hour:
                 start_control()
