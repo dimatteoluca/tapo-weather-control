@@ -5,7 +5,7 @@ This program is designed to control [Tapo](https://www.tapo.com/) devices (plugs
 ## Prerequisites
 
 - [Python](https://www.python.org/) 3.7 or higher
-- Required Python packages: `PyP100`, `python-dotenv`, `astral`, `schedule`
+- Required Python packages: `PyP100`, `requests`, `python-dotenv`, `astral`, `schedule`
 
 ## Installation
 
@@ -13,7 +13,7 @@ This program is designed to control [Tapo](https://www.tapo.com/) devices (plugs
 
 2. Install the required Python packages using pip:
 ```console
-pip install PyP100 python-dotenv astral schedule
+pip install PyP100 requests python-dotenv astral schedule
 ```
 
 3. Set up the configuration file:
