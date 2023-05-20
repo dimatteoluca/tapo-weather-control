@@ -24,24 +24,20 @@ load_dotenv(config_file)
 cloudiness_breakpoint = int(os.getenv("CLOUDINESS_BREAKPOINT"))
 
 # Tapo's plugs and bulbs configuration
-tapo_email = os.getenv("TAPO_EMAIL")
-tapo_psw =   os.getenv("TAPO_PSW")
-bedroom_plug_params = {
-    "ip":    os.getenv("IP_BEDROOM_PLUG"),
-    "email": tapo_email,
-    "psw":   tapo_psw,
-    "model": "P100"
-}
-bedroom_bulb_params = {
-    "ip":    os.getenv("IP_BEDROOM_BULB"),
-    "email": tapo_email,
-    "psw":   tapo_psw,
-    "model": "L530"
-}
-devices = {
-    "bedroom_plug": bedroom_plug_params,
-    "bedroom_bulb": bedroom_bulb_params
-}
+tapo_email =   os.getenv("TAPO_EMAIL")
+tapo_psw =     os.getenv("TAPO_PSW")
+devices_info = os.getenv("DEVICES")
+device_info_list = devices_info.split(";")  # split the elements using a semicolon as the delimiter
+devices = []
+for device_info in device_info_list:
+    ip, model = device_info.split(":")      # split ip from model number using a colon as the delimiter
+    device = {
+        "ip":    ip,
+        "email": tapo_email,
+        "psw":   tapo_psw,
+        "model": model
+    }
+    devices.append(device)
 
 # OpenWeather parameters
 latitude =  os.getenv("LATITUDE")
@@ -57,29 +53,29 @@ def start_control():
         cloudiness = weather_info["clouds"]["all"]
         threads = []
         if cloudiness > cloudiness_breakpoint:
-            logging.info(f"Cloudy ({cloudiness}%)")
-            for device_name, device_params in devices.items():
+            logging.info(f"Cloudy ({cloudiness}%), turing on the devices.")
+            for device in devices:
                 try:
-                    thread = threading.Thread(target=tapo_functions.if_off_turn_on, args=([device_params]))
+                    thread = threading.Thread(target=tapo_functions.if_off_turn_on, args=([device]))
                     threads.append(thread)
                     thread.start()
                 except Exception as e:
                     logging.error(f"Error occurred in the thread management (1): {str(e)}")
         else:
-            logging.info(f"Not cloudy ({cloudiness}%)")
-            for device_name, device_params in devices.items():
+            logging.info(f"Not cloudy ({cloudiness}%), turning off the devices.")
+            for device in devices:
                 try:
-                    thread = threading.Thread(target=tapo_functions.if_on_turn_off, args=([device_params]))
+                    thread = threading.Thread(target=tapo_functions.if_on_turn_off, args=([device]))
                     threads.append(thread)
                     thread.start()
                 except Exception as e:
-                    logging.error(f"Error occurred in the thread management (2): {str(e)}")
+                    logging.error(f"Error occurred in the thread management (1): {str(e)}")
         for thread in threads:
             thread.join()
     else:
         logging.error("Unable to retrieve weather data.")
+    
+logging.info("------------------------------------------")
 
 if __name__ == "__main__":
     start_control()
-    
-logging.info("------------------------------------------")
