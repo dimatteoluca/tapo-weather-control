@@ -1,13 +1,16 @@
 import datetime
 import schedule
 import sys
-import time
 from astral.sun import sun  # pip install astral
 from astral.location import LocationInfo
 try:
     from TapoWeatherControl import *
+    from utils.time_functions import wait_until
+    from utils.time_functions import wait_until_next_hour
 except ImportError:         # handle the case when the direct import fails, likely when executing through an external file
     from .TapoWeatherControl import *
+    from .utils.time_functions import wait_until
+    from .utils.time_functions import wait_until_next_hour
 
 # Configuration values
 first_hour = int(os.getenv("FIRST_HOUR"))
@@ -44,7 +47,7 @@ def get_target_range():
         target_range = range(first_hour - 1, last_hour)
     return target_range
 
-# Schedule for 1 minute before every hour between 9AM and the sunset time
+# Schedule for 1 minute before every hour in the target range
 def schedule_action():
     try:
         target_range = get_target_range()
@@ -53,32 +56,9 @@ def schedule_action():
     except Exception as e:
         logging.error(f"Error occurred while scheduling action: {str(e)}")
 
-
 def reschedule_action():
     schedule.clear()
     schedule_action()
-
-# Wait to make sure the scheduled event is executed on the hour
-def wait_until(target_time):
-    try:
-        now = datetime.datetime.now().time()
-        target = datetime.time(*target_time)  # target_time is a tuple (hours, minutes, seconds)
-        # Calculate the time difference between the current time and the desired time
-        delta = datetime.datetime.combine(datetime.date.today(), target) - datetime.datetime.combine(datetime.date.today(), now)
-        # Wait until the desired hour
-        time.sleep(delta.seconds)
-    except Exception as e:
-        logging.error(f"Error occurred while waiting: {str(e)}")
-
-# Wait until the next hour
-def wait_until_next_hour():
-    try:
-        now = datetime.datetime.now()
-        next_hour = now.replace(minute=0, second=0, microsecond=0) + datetime.timedelta(hours=1)
-        time_difference = (next_hour - now).total_seconds()
-        time.sleep(time_difference)
-    except Exception as e:
-        logging.error(f"Error occurred while waiting for the next hour: {str(e)}")
 
 def main_loop():
     global sunset_time
@@ -94,10 +74,8 @@ def main_loop():
             reschedule_action()
             if current_hour >= first_hour:
                 start_control()
-                logging.info("Waiting for the next hour.")
                 wait_until_next_hour()
             else:
-                logging.info("Waiting for:             09:00.")
                 wait_until([9, 0, 0])  # wait until 9AM
         
         current_hour = datetime.datetime.now().hour
@@ -106,7 +84,6 @@ def main_loop():
             schedule.run_pending()
             wait_until_next_hour()
 
-        logging.info("Waiting for:             01:00")
         wait_until([1, 0, 0])          # wait until 1AM
 
     except KeyboardInterrupt:
