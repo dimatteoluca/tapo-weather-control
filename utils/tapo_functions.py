@@ -60,11 +60,12 @@ def if_off_turn_on(params):
     device = try_to_setup(params)
     ip = params["ip"]
     try:
+        device_name = device.getDeviceName()
         info = device.getDeviceInfo()
         if info["result"]["device_on"] == False:
             device.turnOn()
         else:
-            logging.info(f"The device {ip} was already on.")
+            logging.info(f"The device '{device_name}' ({ip}) was already on.")
     except AttributeError:
         logging.error(f"Couldn't setup the device {ip}.")
 
@@ -72,12 +73,12 @@ def if_on_turn_off(params):
     device = try_to_setup(params)
     ip = params["ip"]
     try:
+        device_name = device.getDeviceName()
         info = device.getDeviceInfo()
         if info["result"]["device_on"] == True:
             device.turnOff()
         else:
-            ip = params["ip"]
-            logging.info(f"The device {ip} was already off.")
+            logging.info(f"The device '{device_name}' ({ip}) was already off.")
     except AttributeError:
         logging.error(f"Couldn't setup the device {ip}.")
     
