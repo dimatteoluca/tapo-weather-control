@@ -18,7 +18,7 @@ pip install PyP100 requests python-dotenv astral schedule
 
 3. Set up the configuration file:
 
-- Rename the file `config_example.env` in the `utils` folder to `config.env`.
+- Rename the file `config_example.env` folder to `config.env`.
 - Modify the relevant elements in `config.env` with your own values (API keys, coordinates, Tapo devices, etc.).
 
 ## Usage
