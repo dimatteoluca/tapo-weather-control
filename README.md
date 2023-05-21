@@ -58,7 +58,7 @@ The `scheduler.py` file is responsible for scheduling the execution of the Tapo 
 
 ## Credits
 
-The [PyP100](https://github.com/fishbigger/TapoP100) library by [fishbigger](https://github.com/fishbigger) is used for controlling Tapo devices.
+- The [PyP100](https://github.com/fishbigger/TapoP100) library by [fishbigger](https://github.com/fishbigger) is used for controlling Tapo devices.
 
 ## Contributions
 
