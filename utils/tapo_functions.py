@@ -1,8 +1,11 @@
-import datetime
 import logging
 import time
 from PyP100 import PyP100   # pip install PyP100
 from PyP100 import PyL530
+try:
+    from time_functions import get_remaining_minutes_until_next_hour
+except ImportError:         # handle the case when the direct import fails, likely when executing through an external file
+    from .time_functions import get_remaining_minutes_until_next_hour
 
 def setup_p100(ip, email, psw):
     device = PyP100.P100(ip, email, psw)
@@ -33,11 +36,6 @@ def device_setup(params):
         return setup_l530(ip, email, psw)
     else:
         logging.error(f"{model} model is not supported.")
-
-def get_remaining_minutes_until_next_hour():
-    current_time = datetime.datetime.now()
-    remaining_minutes = 60 - current_time.minute
-    return remaining_minutes
 
 def try_to_setup(params):
     max_attempts = 6  # Maximum number of allowed attempts
