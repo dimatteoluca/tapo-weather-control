@@ -16,7 +16,7 @@ def wait_until(target_time):
         delta = datetime.datetime.combine(datetime.date.today(), target) - datetime.datetime.combine(datetime.date.today(), now)
         # Wait until the desired hour
         logging.info("Waiting until:           %s", target.strftime('%H:%M'))
-        time.sleep(delta.seconds)
+        time.sleep(delta.seconds + 1)
     except Exception as e:
         logging.error(f"Error occurred while waiting: {str(e)}")
 
