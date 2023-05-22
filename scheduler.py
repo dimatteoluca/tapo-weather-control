@@ -52,7 +52,7 @@ def schedule_action():
     try:
         target_range = get_target_range()
         for hour in target_range:
-            schedule.every().day.at(f"{hour}:59").do(start_control)
+            schedule.every().day.at(f"{hour:02d}:59").do(start_control)
     except Exception as e:
         logging.error(f"Error occurred while scheduling action: {str(e)}")
 
