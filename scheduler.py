@@ -42,7 +42,7 @@ def get_target_range():
     last_hour = sunset_time.hour - 1
     current_hour = datetime.datetime.now().hour
     if current_hour > first_hour and current_hour <= last_hour:
-        target_range = range(current_hour - 1, last_hour)
+        target_range = range(current_hour, last_hour)
     else:
         target_range = range(first_hour - 1, last_hour)
     return target_range
@@ -76,18 +76,20 @@ def main_loop():
                 start_control()
                 wait_until_next_hour()
             else:
-                wait_until([9, 0, 0])  # wait until 9AM
+                wait_until([first_hour, 0, 0])  # wait until first_hour
         
         current_hour = datetime.datetime.now().hour
         while current_hour <= last_hour:
             # Check if there are pending scheduled events and execute them
             schedule.run_pending()
             wait_until_next_hour()
+            current_hour = datetime.datetime.now().hour
 
         wait_until([1, 0, 0])          # wait until 1AM
 
     except KeyboardInterrupt:
         logging.info("Program interrupted by user.")
+        print("Ctrl+C pressed. Exiting...")
         sys.exit(0)
     except Exception as e:
         logging.error(f"Error occurred in the main loop: {str(e)}")
@@ -95,5 +97,6 @@ def main_loop():
         sys.exit(1) 
 
 if __name__ == "__main__":
+    print("Tapo Weather Control is running...")
     while True:
         main_loop()
