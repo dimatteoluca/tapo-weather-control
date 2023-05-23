@@ -81,4 +81,3 @@ def if_on_turn_off(params):
             logging.info(f"The device '{device_name}' ({ip}) was already off.")
     except AttributeError:
         logging.error(f"Couldn't setup the device {ip}.")
-    

@@ -79,7 +79,7 @@ def main_loop():
                 wait_until([first_hour, 0, 0])  # wait until first_hour
         
         current_hour = datetime.datetime.now().hour
-        while current_hour <= last_hour:
+        while current_hour < last_hour:
             # Check if there are pending scheduled events and execute them
             schedule.run_pending()
             wait_until_next_hour()

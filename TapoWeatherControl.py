@@ -75,7 +75,7 @@ def start_control():
     else:
         logging.error("Unable to retrieve weather data.")
     
-logging.info("------------------------------------------")
+logging.info("-------------------------------------------------------")
 
 if __name__ == "__main__":
     start_control()
