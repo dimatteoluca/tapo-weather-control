@@ -1,14 +1,14 @@
-import datetime
-import schedule
-import sys
+import datetime, schedule, sys
 from astral.sun import sun  # pip install astral
 from astral.location import LocationInfo
 try:
     from TapoWeatherControl import *
+    from utils.log_setup import * 
     from utils.time_functions import wait_until
     from utils.time_functions import wait_until_next_hour
 except ImportError:         # handle the case when the direct import fails, likely when executing through an external file
     from .TapoWeatherControl import *
+    from .utils.log_setup import *
     from .utils.time_functions import wait_until
     from .utils.time_functions import wait_until_next_hour
 
@@ -28,12 +28,12 @@ def set_sunset_time(latitude, longitude):
         sun_info = sun(city.observer, date=datetime.date.today())
         sunset_time = sun_info['sunset']
     except ValueError as ve:
-        logging.error(f"Invalid coordinates: {str(ve)}")
+        logger_tw.error(f"Invalid coordinates: {str(ve)}")
         # Terminate execution in case of invalid coordinates
         sys.exit(1)  
     except Exception as e:
-        logging.error(f"Error occurred while getting sunset time: {str(e)}")
-        logging.warning("Continuing execution with default sunset time.")
+        logger_tw.error(f"Error occurred while getting sunset time: {str(e)}")
+        logger_tw.warning("Continuing execution with default sunset time.")
         sunset_time = datetime.datetime.now().replace(hour=18, minute=40, second=0)
 
 # Get the range of hours in which the script needs to be executed
@@ -54,7 +54,7 @@ def schedule_action():
         for hour in target_range:
             schedule.every().day.at(f"{hour:02d}:59").do(start_control)
     except Exception as e:
-        logging.error(f"Error occurred while scheduling action: {str(e)}")
+        logger_tw.error(f"Error occurred while scheduling action: {str(e)}")
 
 def reschedule_action():
     schedule.clear()
@@ -63,11 +63,11 @@ def reschedule_action():
 def main_loop():
     global sunset_time
     try:
-        logging.info("First hour is set on:    %s", datetime.datetime.strptime(str(first_hour), "%H").strftime("%H:%M"))
+        logger_tw.info("First hour is set on:    %s", datetime.datetime.strptime(str(first_hour), "%H").strftime("%H:%M"))
         set_sunset_time(latitude, longitude)
-        logging.info(f"Today's sunset time is:  {sunset_time.strftime('%H:%M')}")
+        logger_tw.info(f"Today's sunset time is:  {sunset_time.strftime('%H:%M')}")
         last_hour = sunset_time.hour - 1
-        logging.info("So today's last hour is: %s", datetime.datetime.strptime(str(last_hour), "%H").strftime("%H:%M"))
+        logger_tw.info("So today's last hour is: %s", datetime.datetime.strptime(str(last_hour), "%H").strftime("%H:%M"))
         
         current_hour = datetime.datetime.now().hour
         if current_hour <= last_hour:
@@ -88,15 +88,13 @@ def main_loop():
         wait_until([1, 0, 0])          # wait until 1AM
 
     except KeyboardInterrupt:
-        logging.info("Program interrupted by user.")
-        print("Ctrl+C pressed. Exiting...")
+        logger_tw.info("Program interrupted by user.")
         sys.exit(0)
     except Exception as e:
-        logging.error(f"Error occurred in the main loop: {str(e)}")
+        logger_tw.error(f"Error occurred in the main loop: {str(e)}")
         # Terminate execution in case of critical errors
         sys.exit(1) 
 
 if __name__ == "__main__":
-    print("Tapo Weather Control is running...")
     while True:
         main_loop()

@@ -1,20 +1,16 @@
-import logging
-import os
-import threading
+import os, threading
 from dotenv import load_dotenv  # pip install python-dotenv
 try:
+    from utils.log_setup import *
     from utils import weather_functions
     from utils import tapo_functions
 except ImportError:             # handle the case when the direct import fails, likely when executing through an external file
+    from .utils.log_setup import *
     from .utils import weather_functions
     from .utils import tapo_functions
 
 # Absolute path of the current folder
 folder_path = os.path.dirname(os.path.abspath(__file__))
-
-# Logger configuration
-log_file = os.path.join(folder_path, 'app.log')
-logging.basicConfig(filename=log_file, level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
 
 # Loading environment variables from the .env file
 config_file = os.path.join(folder_path, 'config.env')
@@ -53,29 +49,29 @@ def start_control():
         cloudiness = weather_info["clouds"]["all"]
         threads = []
         if cloudiness > cloudiness_breakpoint:
-            logging.info(f"Cloudy ({cloudiness}%), turing on the devices.")
+            logger_tw.info(f"Cloudy ({cloudiness}%), turing on the devices.")
             for device in devices:
                 try:
                     thread = threading.Thread(target=tapo_functions.if_off_turn_on, args=([device]))
                     threads.append(thread)
                     thread.start()
                 except Exception as e:
-                    logging.error(f"Error occurred in the thread management (1): {str(e)}")
+                    logger_tw.error(f"Error occurred in the thread management (1): {str(e)}")
         else:
-            logging.info(f"Not cloudy ({cloudiness}%), turning off the devices.")
+            logger_tw.info(f"Not cloudy ({cloudiness}%), turning off the devices.")
             for device in devices:
                 try:
                     thread = threading.Thread(target=tapo_functions.if_on_turn_off, args=([device]))
                     threads.append(thread)
                     thread.start()
                 except Exception as e:
-                    logging.error(f"Error occurred in the thread management (1): {str(e)}")
+                    logger_tw.error(f"Error occurred in the thread management (1): {str(e)}")
         for thread in threads:
             thread.join()
     else:
-        logging.error("Unable to retrieve weather data.")
-    
-logging.info("-------------------------------------------------------")
+        logger_tw.error("Unable to retrieve weather data.")
+
+#logger_tw.info("-------------------------------------------------------")
 
 if __name__ == "__main__":
     start_control()
